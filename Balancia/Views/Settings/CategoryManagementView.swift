@@ -6,7 +6,8 @@ enum CategoryFocusField: Hashable {
 
 struct CategoryManagementView: View {
     @StateObject private var viewModel = CategoryManagementViewModel()
-
+    @State private var editingCategory: Category? = nil
+    
     var body: some View {
         NavigationStack {
             List {
@@ -14,7 +15,7 @@ struct CategoryManagementView: View {
                 categorySection(title: "支出カテゴリ", categories: viewModel.expenseCategories, type: .expense)
 
                 Button("＋ 新規追加") {
-                    viewModel.showingCategoryDialog = true
+                    viewModel.prepareForNewCategory()
                 }
                 .padding(.vertical)
             }
@@ -38,6 +39,9 @@ struct CategoryManagementView: View {
         Section(header: Text(title)) {
             ForEach(categories, id: \.id) { category in
                 Text(category.name)
+                    .onTapGesture {
+                        viewModel.prepareForEdit(category)
+                    }
             }
             .onDelete { indexSet in
                 viewModel.deleteCategory(at: indexSet, for: type)

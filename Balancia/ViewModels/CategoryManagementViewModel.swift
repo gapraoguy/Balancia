@@ -6,10 +6,9 @@ class CategoryManagementViewModel: ObservableObject {
     @Published var incomeCategories: [Category] = []
     @Published var expenseCategories: [Category] = []
     @Published var selectedType: EntryType = .expense
-    
     @Published var showingCategoryDialog: Bool = false
     @Published var categoryName: String = ""
-    
+    @Published var editingCategory: Category? = nil
     @Published var focusedField: CategoryFocusField? = nil
 
     private var realm: Realm
@@ -32,25 +31,43 @@ class CategoryManagementViewModel: ObservableObject {
         self.expenseCategories = Array(expense)
     }
 
-        func addNewCategory() {
-            let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmedName.isEmpty else { return }
-    
-            let category = Category()
-            category.name = trimmedName
-            category.type = selectedType
-    
-            do {
-                try realm.write {
+    func prepareForNewCategory() {
+        categoryName = ""
+        selectedType = .expense
+        editingCategory = nil
+        showingCategoryDialog = true
+    }
+
+    func prepareForEdit(_ category: Category) {
+        categoryName = category.name
+        selectedType = category.type
+        editingCategory = category
+        showingCategoryDialog = true
+    }
+
+    func saveCategory() {
+        let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+
+        do {
+            try realm.write {
+                if let editing = editingCategory {
+                    editing.name = trimmedName
+                    editing.type = selectedType
+                } else {
+                    let category = Category()
+                    category.name = trimmedName
+                    category.type = selectedType
                     realm.add(category)
                 }
-                categoryName = ""
-                showingCategoryDialog = false
-                loadCategories()
-            } catch {
-                print("カテゴリ追加に失敗: \(error.localizedDescription)")
             }
+            categoryName = ""
+            showingCategoryDialog = false
+            loadCategories()
+        } catch {
+            print("カテゴリ保存に失敗: \(error.localizedDescription)")
         }
+    }
 
     func deleteCategory(at offsets: IndexSet, for type: EntryType) {
         let categories = (type == .income) ? incomeCategories : expenseCategories

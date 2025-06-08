@@ -73,7 +73,7 @@ struct CategoryInputSheet: View {
         var body: some View {
             VStack(spacing: 12) {
                 Button(action: {
-                    viewModel.addNewCategory()
+                    viewModel.saveCategory()
                 }) {
                     HStack {
                         Spacer()
