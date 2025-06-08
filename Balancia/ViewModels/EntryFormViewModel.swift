@@ -14,6 +14,8 @@ class EntryFormViewModel: ObservableObject {
 
     private var realm: Realm
     private var existingEntry: Entry?
+    
+    @Published var focusedField: FocusField? = nil 
 
     init(entry: Entry? = nil) {
         self.realm = try! Realm()
@@ -25,9 +27,15 @@ class EntryFormViewModel: ObservableObject {
             self.selectedCategory = entry.category
             self.date = entry.date
             self.memo = entry.memo ?? ""
+            loadCategories()
+        } else {
+            loadCategories()
+            if let firstCategory = filteredCategories.first {
+                self.selectedCategory = firstCategory
+            }
         }
 
-        loadCategories()
+        
     }
 
     func loadCategories() {
@@ -41,14 +49,14 @@ class EntryFormViewModel: ObservableObject {
     func onTypeChanged() {
         selectedCategory = nil
         loadCategories()
+        if let firstCategory = filteredCategories.first {
+            self.selectedCategory = firstCategory
+        }
     }
 
     func saveEntry() {
         guard let amountInt = Int(amount),
-              let category = selectedCategory else {
-            print("金額の入力が不正です: \(amount)")
-            return
-        }
+              let category = selectedCategory else { return }
 
         do {
             try realm.write {
