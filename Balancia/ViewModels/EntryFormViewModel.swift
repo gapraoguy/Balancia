@@ -44,8 +44,23 @@ class EntryFormViewModel: ObservableObject {
             .sorted(byKeyPath: "name")
 
         self.filteredCategories = Array(categories)
-    }
 
+        if let selected = selectedCategory {
+            if selected.isInvalidated {
+                selectedCategory = filteredCategories.first
+            } else if let updated = filteredCategories.first(where: { $0.id == selected.id }) {
+                selectedCategory = nil
+                DispatchQueue.main.async {
+                    self.selectedCategory = updated
+                }
+            } else {
+                selectedCategory = filteredCategories.first
+            }
+        } else {
+            selectedCategory = filteredCategories.first
+        }
+    }
+    
     func onTypeChanged() {
         selectedCategory = nil
         loadCategories()

@@ -48,9 +48,6 @@ struct EntryListView: View {
                     .listStyle(.plain)
                 }
             }
-            .navigationDestination(item: $selectedEntry) { entry in
-                EntryFormView(entry: entry)
-            }
         }
     }
     

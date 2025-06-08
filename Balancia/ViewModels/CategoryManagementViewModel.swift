@@ -10,6 +10,7 @@ class CategoryManagementViewModel: ObservableObject {
     @Published var categoryName: String = ""
     @Published var editingCategory: Category? = nil
     @Published var focusedField: CategoryFocusField? = nil
+    @Published var categoryUpdated: Bool = false
 
     private var realm: Realm
 
@@ -64,6 +65,8 @@ class CategoryManagementViewModel: ObservableObject {
             categoryName = ""
             showingCategoryDialog = false
             loadCategories()
+            print("update")
+            categoryUpdated = true
         } catch {
             print("カテゴリ保存に失敗: \(error.localizedDescription)")
         }
@@ -78,6 +81,8 @@ class CategoryManagementViewModel: ObservableObject {
                     realm.delete(categoryToDelete)
                 }
                 loadCategories()
+                print("update")
+                categoryUpdated = true
             } catch {
                 print("カテゴリ削除に失敗: \(error.localizedDescription)")
             }

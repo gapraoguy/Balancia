@@ -7,12 +7,7 @@ enum FocusField: Hashable {
 
 struct EntryFormView: View {
     @EnvironmentObject var listViewModel: EntryListViewModel
-
-    @StateObject private var viewModel = EntryFormViewModel()
-
-    init(entry: Entry? = nil) {
-        _viewModel = StateObject(wrappedValue: EntryFormViewModel(entry: entry))
-    }
+    @EnvironmentObject var viewModel: EntryFormViewModel
 
     var body: some View {
         NavigationView {
