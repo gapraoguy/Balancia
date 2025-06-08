@@ -1,64 +1,46 @@
 import SwiftUI
-import RealmSwift
+
+enum CategoryFocusField: Hashable {
+    case categoryName
+}
 
 struct CategoryManagementView: View {
-    @ObservedResults(Category.self, sortDescriptor: SortDescriptor(keyPath: "name")) var categories
-
-    @State private var newCategoryName = ""
-    @State private var selectedType: EntryType = .expense
+    @StateObject private var viewModel = CategoryManagementViewModel()
 
     var body: some View {
-        VStack {
-            Form {
-                Section(header: Text("新しいカテゴリを追加")) {
-                    TextField("カテゴリ名", text: $newCategoryName)
-                    Picker("タイプ", selection: $selectedType) {
-                        ForEach(EntryType.allCases, id: \.self) { type in
-                            Text(type.localizedName).tag(type)
-                        }
-                    }
-                    Button("追加") {
-                        addCategory()
-                    }
-                    .disabled(newCategoryName.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
+        NavigationStack {
+            List {
+                categorySection(title: "収入カテゴリ", categories: viewModel.incomeCategories, type: .income)
+                categorySection(title: "支出カテゴリ", categories: viewModel.expenseCategories, type: .expense)
 
-                Section(header: Text("既存のカテゴリ")) {
-                    List {
-                        ForEach(categories) { category in
-                            HStack {
-                                Text(category.name)
-                                Spacer()
-                                Text(category.type.localizedName)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .onDelete(perform: deleteCategory)
+                Button("＋ 新規追加") {
+                    viewModel.showingCategoryDialog = true
+                }
+                .padding(.vertical)
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("完了") {
+                        viewModel.focusedField = nil
                     }
                 }
             }
+            .sheet(isPresented: $viewModel.showingCategoryDialog) {
+                CategoryInputSheet(viewModel: viewModel)
+            }
+            .navigationTitle("カテゴリ管理")
         }
-        .navigationTitle("カテゴリ管理")
     }
 
-    private func addCategory() {
-        let trimmedName = newCategoryName.trimmingCharacters(in: .whitespaces)
-        guard !trimmedName.isEmpty else { return }
-
-        let newCategory = Category()
-        newCategory.name = trimmedName
-        newCategory.type = selectedType
-
-        $categories.append(newCategory)
-        newCategoryName = ""
-    }
-
-    private func deleteCategory(at offsets: IndexSet) {
-        for index in offsets {
-            let category = categories[index]
-            guard let realm = category.realm else { continue }
-            try? realm.write {
-                realm.delete(category)
+    @ViewBuilder
+    private func categorySection(title: String, categories: [Category], type: EntryType) -> some View {
+        Section(header: Text(title)) {
+            ForEach(categories, id: \.id) { category in
+                Text(category.name)
+            }
+            .onDelete { indexSet in
+                viewModel.deleteCategory(at: indexSet, for: type)
             }
         }
     }

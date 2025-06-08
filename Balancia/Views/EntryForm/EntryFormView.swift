@@ -29,6 +29,7 @@ struct EntryFormView: View {
                     Button("完了") {
                         viewModel.focusedField = nil
                     }
+                    .foregroundColor(.secondary)
                 }
             }
             .alert("保存しました", isPresented: $viewModel.saved) {

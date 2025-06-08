@@ -21,6 +21,10 @@ struct MainTabView: View {
                 .tabItem {
                     Label("集計", systemImage: "chart.bar.fill")
                 }
+            SettingsView()
+                .tabItem {
+                    Label("設定", systemImage: "gear")
+                }
         }
         .environmentObject(entryListViewModel)
     }
