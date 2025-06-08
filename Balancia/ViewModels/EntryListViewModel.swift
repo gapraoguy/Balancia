@@ -4,6 +4,7 @@ import RealmSwift
 @MainActor
 class EntryListViewModel: ObservableObject {
     @Published var entries: [Entry] = []
+    @Published var selectedDate: Date = Date()
 
     private var realm: Realm
 
@@ -28,5 +29,14 @@ class EntryListViewModel: ObservableObject {
         loadEntries()
     }
     
+    var filteredEntries: [Entry] {
+        let calendar = Calendar.current
+        return entries.filter { calendar.isDate($0.date, inSameDayAs: selectedDate) }
+    }
     
+    func moveMonth(by offset: Int) {
+        if let newDate = Calendar.current.date(byAdding: .month, value: offset, to: selectedDate) {
+            selectedDate = newDate
+        }
+    }
 }
