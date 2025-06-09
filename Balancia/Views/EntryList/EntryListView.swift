@@ -42,11 +42,19 @@ struct EntryListView: View {
                             }
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedEntry = entry
+                            }
                         }
                         .onDelete(perform: viewModel.deleteEntry)
                     }
                     .listStyle(.plain)
                 }
+            }
+            .navigationDestination(item: $selectedEntry) { entry in
+                EntryFormView()
+                    .environmentObject(EntryFormViewModel(entry: entry))
             }
         }
     }
