@@ -72,7 +72,7 @@ struct SummaryView: View {
                             .foregroundStyle(by: .value("カテゴリ", item.categoryName))
                         }
                         .frame(height: 300)
-                        .padding(.bottom, 16)
+                        .padding()
                     }
                     
                 }

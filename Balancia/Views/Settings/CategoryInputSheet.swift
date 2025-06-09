@@ -27,8 +27,12 @@ struct CategoryInputSheet: View {
             )
             .padding()
         }
-        .onChange(of: viewModel.focusedField) { focusedField = $0 }
-        .onChange(of: focusedField) { viewModel.focusedField = $0 }
+        .onChange(of: viewModel.focusedField) {
+            focusedField = viewModel.focusedField
+        }
+        .onChange(of: focusedField) {
+            viewModel.focusedField = focusedField
+        }
     }
     
     private struct TitleSection: View {
