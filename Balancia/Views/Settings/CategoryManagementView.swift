@@ -13,11 +13,24 @@ struct CategoryManagementView: View {
             List {
                 categorySection(title: "収入カテゴリ", categories: viewModel.incomeCategories, type: .income)
                 categorySection(title: "支出カテゴリ", categories: viewModel.expenseCategories, type: .expense)
-
-                Button("＋ 新規追加") {
-                    viewModel.prepareForNewCategory()
+                
+                Section {
+                    Button(action: {
+                        viewModel.prepareForNewCategory()
+                    }) {
+                        HStack {
+                            Spacer()
+                            Label("新規追加", systemImage: "plus.circle.fill")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.accentColor)
+                        .cornerRadius(10)
+                    }
+                    .listRowBackground(Color.clear)
                 }
-                .padding(.vertical)
             }
             .sheet(isPresented: $viewModel.showingCategoryDialog) {
                 CategoryInputSheet(viewModel: viewModel)
