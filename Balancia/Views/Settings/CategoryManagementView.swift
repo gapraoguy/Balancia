@@ -19,18 +19,9 @@ struct CategoryManagementView: View {
                 }
                 .padding(.vertical)
             }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("完了") {
-                        viewModel.focusedField = nil
-                    }
-                }
-            }
             .sheet(isPresented: $viewModel.showingCategoryDialog) {
                 CategoryInputSheet(viewModel: viewModel)
             }
-            .navigationTitle("カテゴリ管理")
         }
     }
 
@@ -38,10 +29,14 @@ struct CategoryManagementView: View {
     private func categorySection(title: String, categories: [Category], type: EntryType) -> some View {
         Section(header: Text(title)) {
             ForEach(categories, id: \.id) { category in
-                Text(category.name)
-                    .onTapGesture {
-                        viewModel.prepareForEdit(category)
-                    }
+                HStack {
+                    Text(category.name)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.prepareForEdit(category)
+                }
             }
             .onDelete { indexSet in
                 viewModel.deleteCategory(at: indexSet, for: type)

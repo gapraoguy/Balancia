@@ -6,26 +6,26 @@ struct CategoryInputSheet: View {
     @FocusState private var focusedField: CategoryFocusField?
 
     var body: some View {
-        VStack(spacing: 24) {
-            TitleSection()
-            TypePickerSection(selectedType: $viewModel.selectedType)
-            NameInputSection(categoryName: $viewModel.categoryName, focusedField: $focusedField)
-            Divider()
-            ButtonSection(viewModel: viewModel)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
-        )
-        .padding()
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("完了") {
-                    viewModel.focusedField = nil
+        ZStack {
+            Color.black.opacity(0.001)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    focusedField = nil
                 }
+
+            VStack(spacing: 24) {
+                TitleSection()
+                TypePickerSection(selectedType: $viewModel.selectedType)
+                NameInputSection(categoryName: $viewModel.categoryName, focusedField: $focusedField)
+                Divider()
+                ButtonSection(viewModel: viewModel)
             }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(.systemBackground))
+            )
+            .padding()
         }
         .onChange(of: viewModel.focusedField) { focusedField = $0 }
         .onChange(of: focusedField) { viewModel.focusedField = $0 }

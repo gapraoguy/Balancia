@@ -9,7 +9,6 @@ struct SettingsView: View {
             List {
                 NavigationLink("カテゴリ管理", destination: CategoryManagementView(viewModel: categoryVM))
             }
-            .navigationTitle("設定")
             .onChange(of: categoryVM.categoryUpdated) { updated in
                 if updated {
                     print("reload categories")
