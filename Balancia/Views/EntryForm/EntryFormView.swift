@@ -11,20 +11,15 @@ struct EntryFormView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                HStack(spacing: 16) {
-                    Text("記録入力")
-                        .font(.headline)
-                }
-                EntryFormContentView(viewModel: viewModel)
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("完了") {
+            ZStack {
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
                         viewModel.focusedField = nil
                     }
-                    .foregroundColor(.secondary)
+
+                VStack {
+                    EntryFormContentView(viewModel: viewModel)
                 }
             }
             .alert("保存しました", isPresented: $viewModel.saved) {
