@@ -11,11 +11,6 @@ struct EntryFormContentView: View {
     
     var body: some View {
         Form {
-            Section(header: Text("金額")) {
-                TextField("¥0", text: $viewModel.amount)
-                    .keyboardType(.numberPad)
-                    .focused($focusedField, equals: .amount)
-            }
             
             Section {
                 DatePicker("日付", selection: $viewModel.date, displayedComponents: .date)
@@ -39,8 +34,13 @@ struct EntryFormContentView: View {
                         Text(category.name).tag(Optional(category))
                     }
                 }
+                .pickerStyle(.menu)
             }
-                
+            Section(header: Text("金額")) {
+                TextField("¥0", text: $viewModel.amount)
+                    .keyboardType(.numberPad)
+                    .focused($focusedField, equals: .amount)
+            }
             Section {
                 TextField("メモ", text: $viewModel.memo)
                     .focused($focusedField, equals: .memo)
