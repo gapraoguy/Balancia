@@ -14,8 +14,6 @@ class EntryFormViewModel: ObservableObject {
 
     private var realm: Realm
     private var existingEntry: Entry?
-    
-    @Published var focusedField: FocusField? = nil 
 
     init(entry: Entry? = nil) {
         self.realm = try! Realm()

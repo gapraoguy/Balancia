@@ -1,5 +1,10 @@
 import SwiftUI
 
+enum FocusField: Hashable {
+    case amount
+    case memo
+}
+
 struct EntryFormContentView: View {
     @ObservedObject var viewModel: EntryFormViewModel
     @FocusState private var focusedField: FocusField?
@@ -44,6 +49,7 @@ struct EntryFormContentView: View {
             Section {
                 Button(action: {
                     viewModel.saveEntry()
+                    focusedField = nil
                 }) {
                     HStack {
                         Spacer()
@@ -60,11 +66,8 @@ struct EntryFormContentView: View {
                 .listRowBackground(Color.clear)
             }
         }
-        .onChange(of: viewModel.focusedField) { newValue in
-            focusedField = newValue
-        }
-        .onChange(of: focusedField) { newValue in
-            viewModel.focusedField = newValue
+        .onTapGesture {
+            focusedField = nil
         }
     }
 }
