@@ -11,6 +11,8 @@ class EntryFormViewModel: ObservableObject {
     @Published var filteredCategories: [Category] = []
     
     @Published var saved: Bool = false
+    
+    @Published var focusedField: FocusField? = nil
 
     private var realm: Realm
     private var existingEntry: Entry?
