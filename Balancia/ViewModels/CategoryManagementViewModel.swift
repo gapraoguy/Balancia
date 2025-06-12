@@ -88,4 +88,9 @@ class CategoryManagementViewModel: ObservableObject {
             }
         }
     }
+    
+    var availableColors: [String] {
+        let used = (incomeCategories + expenseCategories).map { $0.colorHex }
+        return CategoryColorPalette.availableColors(used: used)
+    }
 }

@@ -11,31 +11,29 @@ struct CategorySeeder {
             }
             
             let expenseCategories = [
-                ("食費", "fork.knife", "#FFB6B6"),
-                ("交通", "car", "#A0E7E5"),
-                ("交際費", "person.2.fill", "#FFDAC1"),
-                ("日用品", "cart.fill", "#E2F0CB"),
-                ("娯楽", "gamecontroller.fill", "#B5EAD7")
+                ("食費", "#FF3B30"), //systemRed
+                ("交通", "#5AC8FA"), //systemTeal
+                ("交際費", "#FF2D55"), //systemPink
+                ("日用品", "#8E8E93"), //systemGray
+                ("娯楽", "#AF52DE") // systemPurple
             ]
             let incomeCategories = [
-                ("給与", "briefcase.fill", "#C7CEEA"),
-                ("お小遣い", "gift.fill", "#FFD6A5"),
-                ("売上", "dollarsign.circle", "#FF9AA2")
+                ("給与", "#34C759"), // systemGreen
+                ("お小遣い", "#32D74B"), // systemMint
+                ("売上", "#0A84FF") // systemBlue
             ]
             
             try realm.write {
-                for (name, icon, color) in expenseCategories {
+                for (name, color) in expenseCategories {
                     let category = Category()
                     category.name = name
-                    category.iconName = icon
                     category.colorHex = color
                     category.type = .expense
                     realm.add(category)
                 }
-                for (name, icon, color) in incomeCategories {
+                for (name, color) in incomeCategories {
                     let category = Category()
                     category.name = name
-                    category.iconName = icon
                     category.colorHex = color
                     category.type = .income
                     realm.add(category)

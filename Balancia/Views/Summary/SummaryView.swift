@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 
+
 struct SummaryView: View {
     @EnvironmentObject var listViewModel: EntryListViewModel
     @StateObject private var viewModel = SummaryViewModel()
@@ -69,7 +70,7 @@ struct SummaryView: View {
                                 innerRadius: .ratio(0.5),
                                 angularInset: 1.5
                             )
-                            .foregroundStyle(by: .value("カテゴリ", item.categoryName))
+                            .foregroundStyle(Color.hex(item.colorHex))
                         }
                         .frame(height: 300)
                         .padding()

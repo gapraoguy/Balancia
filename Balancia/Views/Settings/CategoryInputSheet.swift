@@ -75,29 +75,38 @@ struct CategoryInputSheet: View {
         @ObservedObject var viewModel: CategoryManagementViewModel
 
         var body: some View {
-            VStack(spacing: 12) {
-                Button(action: {
-                    viewModel.saveCategory()
-                }) {
-                    HStack {
-                        Spacer()
-                        Label("保存", systemImage: "checkmark.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Spacer()
+            if viewModel.availableColors.isEmpty {
+                Text("カテゴリー数が上限に達しました")
+                    .foregroundColor(.gray)
+                    .font(.footnote)
+                    .padding(.vertical)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                VStack(spacing: 12) {
+                    Button(action: {
+                        viewModel.saveCategory()
+                    }) {
+                        HStack {
+                            Spacer()
+                            Label("保存", systemImage: "checkmark.circle.fill")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.accentColor)
+                        .cornerRadius(10)
                     }
-                    .padding()
-                    .background(Color.accentColor)
-                    .cornerRadius(10)
-                }
-                .disabled(viewModel.categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .disabled(viewModel.categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
-                Button("キャンセル", role: .cancel) {
-                    viewModel.showingCategoryDialog = false
+                    Button("キャンセル", role: .cancel) {
+                        viewModel.showingCategoryDialog = false
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            
         }
     }
 }

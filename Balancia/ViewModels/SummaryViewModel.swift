@@ -4,6 +4,7 @@ struct CategorySummary: Identifiable {
     let id = UUID()
     let categoryName: String
     let amount: Int
+    let colorHex: String
 }
 
 @MainActor
@@ -51,10 +52,16 @@ class SummaryViewModel: ObservableObject {
         totalIncome = monthEntries.filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
         totalExpense = monthEntries.filter { $0.type == .expense }.reduce(0) { $0 + $1.amount }
 
-        let grouped = Dictionary(grouping: monthEntries.filter { $0.type == .expense }) { $0.category?.name ?? "不明" }
+        let grouped = Dictionary(grouping: monthEntries.filter { $0.type == .expense }) { $0.category }
 
-        categorySummaries = grouped.map { (key, value) in
-            CategorySummary(categoryName: key, amount: value.reduce(0) { $0 + $1.amount })
+        categorySummaries = grouped.compactMap { (optionalCategory, entries) in
+            guard let category = optionalCategory else { return nil }
+            let total = entries.reduce(0) { $0 + $1.amount }
+            return CategorySummary(
+                categoryName: category.name,
+                amount: total,
+                colorHex: category.colorHex
+            )
         }
     }
 }
