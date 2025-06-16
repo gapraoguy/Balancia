@@ -11,12 +11,15 @@ class CategoryManagementViewModel: ObservableObject {
     @Published var editingCategory: Category? = nil
     @Published var focusedField: CategoryFocusField? = nil
     @Published var categoryUpdated: Bool = false
+    @Published var allColors: [CategoryColor] = []
+    @Published var selectedColorHex: String = ""
 
     private var realm: Realm
 
     init() {
         self.realm = try! Realm()
         loadCategories()
+        loadColors()
     }
 
     func loadCategories() {
@@ -31,10 +34,16 @@ class CategoryManagementViewModel: ObservableObject {
         self.incomeCategories = Array(income)
         self.expenseCategories = Array(expense)
     }
+    
+    func loadColors() {
+        let objects = realm.objects(CategoryColor.self).sorted(byKeyPath: "hex")
+        self.allColors = Array(objects)
+    }
 
     func prepareForNewCategory() {
         categoryName = ""
         selectedType = .expense
+        selectedColorHex = ""
         editingCategory = nil
         showingCategoryDialog = true
     }
@@ -42,6 +51,7 @@ class CategoryManagementViewModel: ObservableObject {
     func prepareForEdit(_ category: Category) {
         categoryName = category.name
         selectedType = category.type
+        selectedColorHex = category.color?.hex ?? ""
         editingCategory = category
         showingCategoryDialog = true
     }
@@ -52,13 +62,26 @@ class CategoryManagementViewModel: ObservableObject {
 
         do {
             try realm.write {
+                guard let selectedColor = realm.object(ofType: CategoryColor.self, forPrimaryKey: selectedColorHex) else {
+                    print("色が選択されていません")
+                    return
+                }
+
                 if let editing = editingCategory {
+                    if let oldColor = editing.color, oldColor.hex != selectedColorHex {
+                        oldColor.isUsed = false
+                    }
+
                     editing.name = trimmedName
                     editing.type = selectedType
+                    editing.color = selectedColor
+                    selectedColor.isUsed = true
                 } else {
                     let category = Category()
                     category.name = trimmedName
                     category.type = selectedType
+                    category.color = selectedColor
+                    selectedColor.isUsed = true
                     realm.add(category)
                 }
             }
@@ -78,6 +101,9 @@ class CategoryManagementViewModel: ObservableObject {
             let categoryToDelete = categories[index]
             do {
                 try realm.write {
+                    if let color = categoryToDelete.color {
+                        color.isUsed = false
+                    }
                     realm.delete(categoryToDelete)
                 }
                 loadCategories()
@@ -88,9 +114,17 @@ class CategoryManagementViewModel: ObservableObject {
             }
         }
     }
-    
+
     var availableColors: [String] {
-        let used = (incomeCategories + expenseCategories).map { $0.colorHex }
-        return CategoryColorPalette.availableColors(used: used)
+        let available = realm.objects(CategoryColor.self)
+            .filter("isUsed == false")
+            .sorted(byKeyPath: "hex")
+        return available.map { $0.hex }
+    }
+    
+    func isColorUsed(_ colorHex: String) -> Bool {
+        guard let color = allColors.first(where: { $0.hex == colorHex }) else { return false }
+        let isEditingSameColor = (editingCategory?.color?.hex == colorHex)
+        return color.isUsed && !isEditingSameColor
     }
 }

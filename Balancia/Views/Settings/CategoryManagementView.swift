@@ -43,7 +43,13 @@ struct CategoryManagementView: View {
         Section(header: Text(title)) {
             ForEach(categories, id: \.id) { category in
                 HStack {
+                    Circle()
+                        .fill(Color.hex(category.color?.hex ?? "#D3D3D3"))
+                        .frame(width: 16, height: 16)
+
                     Text(category.name)
+                        .padding(.leading, 4)
+
                     Spacer()
                 }
                 .contentShape(Rectangle())
