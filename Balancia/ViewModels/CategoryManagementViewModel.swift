@@ -13,31 +13,28 @@ class CategoryManagementViewModel: ObservableObject {
     @Published var categoryUpdated: Bool = false
     @Published var allColors: [CategoryColor] = []
     @Published var selectedColorHex: String = ""
+    
+    private let categoryService: CategoryServiceProtocol
+    private let colorService: CategoryColorServiceProtocol
 
-    private var realm: Realm
-
-    init() {
-        self.realm = try! Realm()
+    init(
+        categoryService: CategoryServiceProtocol = CategoryService(),
+        colorService: CategoryColorServiceProtocol = CategoryColorService()
+    ) {
+        self.categoryService = categoryService
+        self.colorService = colorService
         loadCategories()
         loadColors()
     }
 
     func loadCategories() {
-        let income = realm.objects(Category.self)
-            .filter("type == %@", EntryType.income.rawValue)
-            .sorted(byKeyPath: "name")
-
-        let expense = realm.objects(Category.self)
-            .filter("type == %@", EntryType.expense.rawValue)
-            .sorted(byKeyPath: "name")
-
-        self.incomeCategories = Array(income)
-        self.expenseCategories = Array(expense)
+        let all = categoryService.getAllCategories()
+        self.incomeCategories = all.filter { $0.type == .income }
+        self.expenseCategories = all.filter { $0.type == .expense }
     }
     
     func loadColors() {
-        let objects = realm.objects(CategoryColor.self).sorted(byKeyPath: "hex")
-        self.allColors = Array(objects)
+        self.allColors = colorService.getAllColors()
     }
 
     func prepareForNewCategory() {
@@ -61,30 +58,31 @@ class CategoryManagementViewModel: ObservableObject {
         guard !trimmedName.isEmpty else { return }
 
         do {
-            try realm.write {
-                guard let selectedColor = realm.object(ofType: CategoryColor.self, forPrimaryKey: selectedColorHex) else {
-                    print("色が選択されていません")
-                    return
+            if let editing = editingCategory {
+                
+                if let oldColorHex = editing.color?.hex,
+                   oldColorHex != selectedColorHex {
+                    colorService.releaseColor(oldColorHex)
                 }
 
-                if let editing = editingCategory {
-                    if let oldColor = editing.color, oldColor.hex != selectedColorHex {
-                        oldColor.isUsed = false
-                    }
+                try colorService.reserveColor(selectedColorHex)
 
-                    editing.name = trimmedName
-                    editing.type = selectedType
-                    editing.color = selectedColor
-                    selectedColor.isUsed = true
-                } else {
-                    let category = Category()
-                    category.name = trimmedName
-                    category.type = selectedType
-                    category.color = selectedColor
-                    selectedColor.isUsed = true
-                    realm.add(category)
-                }
+                try categoryService.updateCategory(
+                    category: editing,
+                    newName: trimmedName,
+                    newType: selectedType,
+                    newColorHex: selectedColorHex
+                )
+            } else {
+                try colorService.reserveColor(selectedColorHex)
+                
+                try categoryService.createCategory(
+                    name: trimmedName,
+                    type: selectedType,
+                    colorHex: selectedColorHex
+                )
             }
+
             categoryName = ""
             showingCategoryDialog = false
             loadCategories()
@@ -100,12 +98,7 @@ class CategoryManagementViewModel: ObservableObject {
         offsets.forEach { index in
             let categoryToDelete = categories[index]
             do {
-                try realm.write {
-                    if let color = categoryToDelete.color {
-                        color.isUsed = false
-                    }
-                    realm.delete(categoryToDelete)
-                }
+                try categoryService.deleteCategory(categoryToDelete)
                 loadCategories()
                 print("update")
                 categoryUpdated = true
@@ -116,15 +109,10 @@ class CategoryManagementViewModel: ObservableObject {
     }
 
     var availableColors: [String] {
-        let available = realm.objects(CategoryColor.self)
-            .filter("isUsed == false")
-            .sorted(byKeyPath: "hex")
-        return available.map { $0.hex }
+        colorService.getAvailableColors().map { $0.hex }
     }
     
     func isColorUsed(_ colorHex: String) -> Bool {
-        guard let color = allColors.first(where: { $0.hex == colorHex }) else { return false }
-        let isEditingSameColor = (editingCategory?.color?.hex == colorHex)
-        return color.isUsed && !isEditingSameColor
+        colorService.isColorUsed(colorHex, excluding: editingCategory)
     }
 }
