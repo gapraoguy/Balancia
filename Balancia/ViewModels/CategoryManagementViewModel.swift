@@ -1,40 +1,39 @@
 import Foundation
 import SwiftUI
-import RealmSwift
 
 class CategoryManagementViewModel: ObservableObject {
-    @Published var incomeCategories: [Category] = []
-    @Published var expenseCategories: [Category] = []
+    @Published var incomeCategories: [CategoryModel] = []
+    @Published var expenseCategories: [CategoryModel] = []
     @Published var selectedType: EntryType = .expense
     @Published var showingCategoryDialog: Bool = false
     @Published var categoryName: String = ""
-    @Published var editingCategory: Category? = nil
+    @Published var editingCategory: CategoryModel? = nil
     @Published var focusedField: CategoryFocusField? = nil
     @Published var categoryUpdated: Bool = false
-    @Published var allColors: [CategoryColor] = []
+    @Published var allColors: [CategoryColorModel] = []
     @Published var selectedColorHex: String = ""
-    
-    private let categoryService: CategoryServiceProtocol
-    private let colorService: CategoryColorServiceProtocol
+
+    private let categoryRepository: CategoryRepositoryProtocol
+    private let colorRepository: CategoryColorRepositoryProtocol
 
     init(
-        categoryService: CategoryServiceProtocol = CategoryService(),
-        colorService: CategoryColorServiceProtocol = CategoryColorService()
+        categoryRepository: CategoryRepositoryProtocol = CategoryRepository(),
+        colorRepository: CategoryColorRepositoryProtocol = CategoryColorRepository()
     ) {
-        self.categoryService = categoryService
-        self.colorService = colorService
+        self.categoryRepository = categoryRepository
+        self.colorRepository = colorRepository
         loadCategories()
         loadColors()
     }
 
     func loadCategories() {
-        let all = categoryService.getAllCategories()
+        let all = categoryRepository.getAll()
         self.incomeCategories = all.filter { $0.type == .income }
         self.expenseCategories = all.filter { $0.type == .expense }
     }
-    
+
     func loadColors() {
-        self.allColors = colorService.getAllColors()
+        self.allColors = colorRepository.getAll()
     }
 
     func prepareForNewCategory() {
@@ -45,7 +44,7 @@ class CategoryManagementViewModel: ObservableObject {
         showingCategoryDialog = true
     }
 
-    func prepareForEdit(_ category: Category) {
+    func prepareForEdit(_ category: CategoryModel) {
         categoryName = category.name
         selectedType = category.type
         selectedColorHex = category.color?.hex ?? ""
@@ -59,35 +58,39 @@ class CategoryManagementViewModel: ObservableObject {
 
         do {
             if let editing = editingCategory {
-                
-                if let oldColorHex = editing.color?.hex,
-                   oldColorHex != selectedColorHex {
-                    colorService.releaseColor(oldColorHex)
+                var updated = editing
+                let oldHex = editing.color?.hex
+                let newHex = selectedColorHex
+
+                if oldHex != newHex {
+                    if let oldHex = oldHex {
+                        colorRepository.releaseColor(oldHex)
+                    }
+                    try colorRepository.reserveColor(newHex)
+                    updated.color = colorRepository.get(byHex: newHex)
                 }
 
-                try colorService.reserveColor(selectedColorHex)
+                updated.name = trimmedName
+                updated.type = selectedType
 
-                try categoryService.updateCategory(
-                    category: editing,
-                    newName: trimmedName,
-                    newType: selectedType,
-                    newColorHex: selectedColorHex
-                )
+                categoryRepository.update(updated)
             } else {
-                try colorService.reserveColor(selectedColorHex)
-                
-                try categoryService.createCategory(
+                try colorRepository.reserveColor(selectedColorHex)
+
+                let newCategory = CategoryModel(
                     name: trimmedName,
                     type: selectedType,
-                    colorHex: selectedColorHex
+                    color: colorRepository.get(byHex: selectedColorHex)
                 )
+
+                categoryRepository.create(newCategory)
             }
 
             categoryName = ""
             showingCategoryDialog = false
             loadCategories()
-            print("update")
             categoryUpdated = true
+
         } catch {
             print("カテゴリ保存に失敗: \(error.localizedDescription)")
         }
@@ -97,22 +100,20 @@ class CategoryManagementViewModel: ObservableObject {
         let categories = (type == .income) ? incomeCategories : expenseCategories
         offsets.forEach { index in
             let categoryToDelete = categories[index]
-            do {
-                try categoryService.deleteCategory(categoryToDelete)
-                loadCategories()
-                print("update")
-                categoryUpdated = true
-            } catch {
-                print("カテゴリ削除に失敗: \(error.localizedDescription)")
+            if let hex = categoryToDelete.color?.hex {
+                colorRepository.releaseColor(hex)
             }
+            categoryRepository.delete(categoryToDelete)
+            loadCategories()
+            categoryUpdated = true
         }
     }
 
     var availableColors: [String] {
-        colorService.getAvailableColors().map { $0.hex }
+        colorRepository.getAvailable().map { $0.hex }
     }
-    
+
     func isColorUsed(_ colorHex: String) -> Bool {
-        colorService.isColorUsed(colorHex, excluding: editingCategory)
+        colorRepository.isColorUsed(colorHex, excluding: editingCategory)
     }
 }

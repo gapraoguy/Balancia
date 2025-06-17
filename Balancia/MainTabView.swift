@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject private var entryFormViewModel = EntryFormViewModel()
+    @StateObject private var summaryViewModel = SummaryViewModel()
     @StateObject private var entryListViewModel = EntryListViewModel()
     
     var body: some View {
@@ -29,6 +30,7 @@ struct MainTabView: View {
                 }
         }
         .environmentObject(entryFormViewModel)
+        .environmentObject(summaryViewModel)
         .environmentObject(entryListViewModel)
     }
 }

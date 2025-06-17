@@ -42,7 +42,7 @@ class SummaryViewModel: ObservableObject {
         }
     }
 
-    func calculate(from entries: [Entry]) {
+    func calculate(from entries: [EntryModel]) {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth))!
         let endOfMonth = calendar.date(byAdding: .month, value: 1, to: startOfMonth)!
@@ -52,11 +52,14 @@ class SummaryViewModel: ObservableObject {
         totalIncome = monthEntries.filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
         totalExpense = monthEntries.filter { $0.type == .expense }.reduce(0) { $0 + $1.amount }
 
-        let grouped = Dictionary(grouping: monthEntries.filter { $0.type == .expense }) { $0.category }
+        let grouped = Dictionary(grouping: monthEntries.filter { $0.type == .expense }) {
+            $0.category?.id
+        }
 
-        categorySummaries = grouped.compactMap { (optionalCategory, entries) in
-            guard let category = optionalCategory else { return nil }
+        categorySummaries = grouped.compactMap { (id, entries) in
+            guard let category = entries.first?.category else { return nil }
             let total = entries.reduce(0) { $0 + $1.amount }
+            print(total)
             return CategorySummary(
                 categoryName: category.name,
                 amount: total,
