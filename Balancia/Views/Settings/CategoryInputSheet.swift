@@ -17,6 +17,7 @@ struct CategoryInputSheet: View {
                 TitleSection()
                 TypePickerSection(selectedType: $viewModel.selectedType)
                 NameInputSection(categoryName: $viewModel.categoryName, focusedField: $focusedField)
+                ColorPickerSection(viewModel: viewModel) 
                 Divider()
                 ButtonSection(viewModel: viewModel)
             }
@@ -68,6 +69,52 @@ struct CategoryInputSheet: View {
                 .cornerRadius(8)
                 .padding(.horizontal)
                 .focused($focusedField, equals: .categoryName)
+        }
+    }
+    
+    private struct ColorPickerSection: View {
+        @ObservedObject var viewModel: CategoryManagementViewModel
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("色を選択")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 6), spacing: 12) {
+                    ForEach(viewModel.allColors, id: \.hex) { color in
+                        ZStack {
+                            Circle()
+                                .fill(Color.hex(color.hex))
+                                .frame(width: 36, height: 36)
+
+                            if viewModel.selectedColorHex == color.hex {
+                                Circle()
+                                    .stroke(Color.blue, lineWidth: 3)
+                                    .frame(width: 40, height: 40)
+                            }
+
+                            if viewModel.isColorUsed(color.hex) {
+                                Circle()
+                                    .fill(Color.black.opacity(0.25))
+                                    .frame(width: 36, height: 36)
+
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.8))
+                                    .frame(width: 2, height: 40)
+                                    .rotationEffect(.degrees(45))
+                            }
+                        }
+                        .onTapGesture {
+                            if !viewModel.isColorUsed(color.hex) || viewModel.selectedColorHex == color.hex {
+                                viewModel.selectedColorHex = color.hex
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
         }
     }
     

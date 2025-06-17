@@ -60,7 +60,7 @@ class SummaryViewModel: ObservableObject {
             return CategorySummary(
                 categoryName: category.name,
                 amount: total,
-                colorHex: category.colorHex
+                colorHex: category.color?.hex ?? "#D3D3D3"
             )
         }
     }

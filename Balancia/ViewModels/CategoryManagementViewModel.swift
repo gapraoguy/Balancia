@@ -11,30 +11,36 @@ class CategoryManagementViewModel: ObservableObject {
     @Published var editingCategory: Category? = nil
     @Published var focusedField: CategoryFocusField? = nil
     @Published var categoryUpdated: Bool = false
+    @Published var allColors: [CategoryColor] = []
+    @Published var selectedColorHex: String = ""
+    
+    private let categoryService: CategoryServiceProtocol
+    private let colorService: CategoryColorServiceProtocol
 
-    private var realm: Realm
-
-    init() {
-        self.realm = try! Realm()
+    init(
+        categoryService: CategoryServiceProtocol = CategoryService(),
+        colorService: CategoryColorServiceProtocol = CategoryColorService()
+    ) {
+        self.categoryService = categoryService
+        self.colorService = colorService
         loadCategories()
+        loadColors()
     }
 
     func loadCategories() {
-        let income = realm.objects(Category.self)
-            .filter("type == %@", EntryType.income.rawValue)
-            .sorted(byKeyPath: "name")
-
-        let expense = realm.objects(Category.self)
-            .filter("type == %@", EntryType.expense.rawValue)
-            .sorted(byKeyPath: "name")
-
-        self.incomeCategories = Array(income)
-        self.expenseCategories = Array(expense)
+        let all = categoryService.getAllCategories()
+        self.incomeCategories = all.filter { $0.type == .income }
+        self.expenseCategories = all.filter { $0.type == .expense }
+    }
+    
+    func loadColors() {
+        self.allColors = colorService.getAllColors()
     }
 
     func prepareForNewCategory() {
         categoryName = ""
         selectedType = .expense
+        selectedColorHex = ""
         editingCategory = nil
         showingCategoryDialog = true
     }
@@ -42,6 +48,7 @@ class CategoryManagementViewModel: ObservableObject {
     func prepareForEdit(_ category: Category) {
         categoryName = category.name
         selectedType = category.type
+        selectedColorHex = category.color?.hex ?? ""
         editingCategory = category
         showingCategoryDialog = true
     }
@@ -51,17 +58,31 @@ class CategoryManagementViewModel: ObservableObject {
         guard !trimmedName.isEmpty else { return }
 
         do {
-            try realm.write {
-                if let editing = editingCategory {
-                    editing.name = trimmedName
-                    editing.type = selectedType
-                } else {
-                    let category = Category()
-                    category.name = trimmedName
-                    category.type = selectedType
-                    realm.add(category)
+            if let editing = editingCategory {
+                
+                if let oldColorHex = editing.color?.hex,
+                   oldColorHex != selectedColorHex {
+                    colorService.releaseColor(oldColorHex)
                 }
+
+                try colorService.reserveColor(selectedColorHex)
+
+                try categoryService.updateCategory(
+                    category: editing,
+                    newName: trimmedName,
+                    newType: selectedType,
+                    newColorHex: selectedColorHex
+                )
+            } else {
+                try colorService.reserveColor(selectedColorHex)
+                
+                try categoryService.createCategory(
+                    name: trimmedName,
+                    type: selectedType,
+                    colorHex: selectedColorHex
+                )
             }
+
             categoryName = ""
             showingCategoryDialog = false
             loadCategories()
@@ -77,9 +98,7 @@ class CategoryManagementViewModel: ObservableObject {
         offsets.forEach { index in
             let categoryToDelete = categories[index]
             do {
-                try realm.write {
-                    realm.delete(categoryToDelete)
-                }
+                try categoryService.deleteCategory(categoryToDelete)
                 loadCategories()
                 print("update")
                 categoryUpdated = true
@@ -88,9 +107,12 @@ class CategoryManagementViewModel: ObservableObject {
             }
         }
     }
-    
+
     var availableColors: [String] {
-        let used = (incomeCategories + expenseCategories).map { $0.colorHex }
-        return CategoryColorPalette.availableColors(used: used)
+        colorService.getAvailableColors().map { $0.hex }
+    }
+    
+    func isColorUsed(_ colorHex: String) -> Bool {
+        colorService.isColorUsed(colorHex, excluding: editingCategory)
     }
 }
