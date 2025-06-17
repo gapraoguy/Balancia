@@ -4,7 +4,7 @@ import Charts
 
 struct SummaryView: View {
     @EnvironmentObject var listViewModel: EntryListViewModel
-    @StateObject private var viewModel = SummaryViewModel()
+    @EnvironmentObject var viewModel: SummaryViewModel
 
     var body: some View {
         NavigationStack {

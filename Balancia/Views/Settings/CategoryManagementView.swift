@@ -6,14 +6,14 @@ enum CategoryFocusField: Hashable {
 
 struct CategoryManagementView: View {
     @ObservedObject var viewModel: CategoryManagementViewModel
-    @State private var editingCategory: Category? = nil
-    
+    @State private var editingCategory: CategoryModel? = nil
+
     var body: some View {
         NavigationStack {
             List {
                 categorySection(title: "収入カテゴリ", categories: viewModel.incomeCategories, type: .income)
                 categorySection(title: "支出カテゴリ", categories: viewModel.expenseCategories, type: .expense)
-                
+
                 Section {
                     Button(action: {
                         viewModel.prepareForNewCategory()
@@ -39,7 +39,7 @@ struct CategoryManagementView: View {
     }
 
     @ViewBuilder
-    private func categorySection(title: String, categories: [Category], type: EntryType) -> some View {
+    private func categorySection(title: String, categories: [CategoryModel], type: EntryType) -> some View {
         Section(header: Text(title)) {
             ForEach(categories, id: \.id) { category in
                 HStack {

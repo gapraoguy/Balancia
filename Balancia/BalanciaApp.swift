@@ -1,4 +1,5 @@
 import SwiftUI
+import RealmSwift
 
 @main
 struct BalanciaApp: App {

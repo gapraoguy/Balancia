@@ -1,24 +1,26 @@
 import Foundation
-import RealmSwift
 
 class EntryFormViewModel: ObservableObject {
     @Published var amount: String = ""
     @Published var selectedType: EntryType = .expense
-    @Published var selectedCategory: Category?
+    @Published var selectedCategory: CategoryModel?
     @Published var date: Date = Date()
     @Published var memo: String = ""
-
-    @Published var filteredCategories: [Category] = []
-    
+    @Published var filteredCategories: [CategoryModel] = []
     @Published var saved: Bool = false
-    
     @Published var focusedField: FocusField? = nil
 
-    private var realm: Realm
-    private var existingEntry: Entry?
+    private var existingEntry: EntryModel?
+    private let entryRepository: EntryRepositoryProtocol
+    private let categoryRepository: CategoryRepositoryProtocol
 
-    init(entry: Entry? = nil) {
-        self.realm = try! Realm()
+    init(
+        entry: EntryModel? = nil,
+        entryRepository: EntryRepositoryProtocol = EntryRepository(),
+        categoryRepository: CategoryRepositoryProtocol = CategoryRepository()
+    ) {
+        self.entryRepository = entryRepository
+        self.categoryRepository = categoryRepository
         self.existingEntry = entry
 
         if let entry = entry {
@@ -27,28 +29,17 @@ class EntryFormViewModel: ObservableObject {
             self.selectedCategory = entry.category
             self.date = entry.date
             self.memo = entry.memo ?? ""
-            loadCategories()
-        } else {
-            loadCategories()
-            if let firstCategory = filteredCategories.first {
-                self.selectedCategory = firstCategory
-            }
         }
 
-        
+        loadCategories()
     }
 
     func loadCategories() {
-        let categories = realm.objects(Category.self)
-            .filter("type == %@", selectedType.rawValue)
-            .sorted(byKeyPath: "name")
-
-        self.filteredCategories = Array(categories)
+        let all = categoryRepository.get(by: selectedType).sorted { $0.name < $1.name }
+        self.filteredCategories = all
 
         if let selected = selectedCategory {
-            if selected.isInvalidated {
-                selectedCategory = filteredCategories.first
-            } else if let updated = filteredCategories.first(where: { $0.id == selected.id }) {
+            if let updated = filteredCategories.first(where: { $0.id == selected.id }) {
                 selectedCategory = nil
                 DispatchQueue.main.async {
                     self.selectedCategory = updated
@@ -60,40 +51,33 @@ class EntryFormViewModel: ObservableObject {
             selectedCategory = filteredCategories.first
         }
     }
-    
+
     func onTypeChanged() {
         selectedCategory = nil
         loadCategories()
-        if let firstCategory = filteredCategories.first {
-            self.selectedCategory = firstCategory
-        }
+        selectedCategory = filteredCategories.first
     }
 
     func saveEntry() {
         guard let amountInt = Int(amount),
               let category = selectedCategory else { return }
 
-        do {
-            try realm.write {
-                if let existing = existingEntry {
-                    existing.amount = amountInt
-                    existing.category = category
-                    existing.date = date
-                    existing.memo = memo
-                    existing.type = selectedType
-                } else {
-                    let entry = Entry()
-                    entry.amount = amountInt
-                    entry.date = date
-                    entry.memo = memo
-                    entry.type = selectedType
-                    entry.category = category
-                    realm.add(entry)
-                }
-            }
-            saved = true
-        } catch {
-            print("Entry保存失敗: \(error.localizedDescription)")
-        }
+        var entry = existingEntry ?? EntryModel(
+            amount: amountInt,
+            category: category,
+            memo: memo,
+            tags: [],
+            type: selectedType,
+            date: date
+        )
+
+        entry.amount = amountInt
+        entry.category = category
+        entry.memo = memo
+        entry.type = selectedType
+        entry.date = date
+
+        entryRepository.save(entry)
+        saved = true
     }
 }

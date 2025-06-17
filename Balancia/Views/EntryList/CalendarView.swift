@@ -21,7 +21,7 @@ extension Date {
 
 struct CalendarView: View {
     @Binding var selectedDate: Date
-    let entries: [Entry]
+    let entries: [EntryModel]
 
     private let calendar = Calendar.current
     private let daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"]
@@ -75,12 +75,11 @@ struct CalendarView: View {
                                 .font(.footnote)
                                 .foregroundColor(isSelected ? .white : .primary)
                                 .padding(8)
-                                    .background(
-                                        isSelected
-                                            ? Circle().fill(Color.accentColor)
-                                            : nil
-                                    )
-
+                                .background(
+                                    isSelected
+                                        ? Circle().fill(Color.accentColor)
+                                        : nil
+                                )
 
                             if let summary = summary {
                                 Text(summary.income > 0 ? FormatterUtils.formattedAmountWithSymbol(summary.income) : " ")
@@ -104,4 +103,3 @@ struct CalendarView: View {
         }
     }
 }
-
