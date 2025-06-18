@@ -28,7 +28,9 @@ extension RealmEntry {
         self.init()
         self.id = model.id
         self.amount = model.amount
-        self.category = model.category.flatMap { RealmCategory(from: $0, in: realm) }
+        if let categoryModel = model.category {
+            self.category = realm.object(ofType: RealmCategory.self, forPrimaryKey: categoryModel.id)
+        }
         self.memo = model.memo
         self.tags.append(objectsIn: model.tags)
         self.type = model.type

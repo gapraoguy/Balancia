@@ -14,7 +14,6 @@ class EntryListViewModel: ObservableObject {
 
     func loadEntries() {
         self.entries = repository.getAll().sorted(by: { $0.date > $1.date })
-        print("loadEntries: \(entries.count) 件読み込み")
     }
 
     func deleteEntry(at offsets: IndexSet) {

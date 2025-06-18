@@ -59,10 +59,19 @@ class EntryFormViewModel: ObservableObject {
     }
 
     func saveEntry() {
+        if existingEntry != nil {
+            updateEntry()
+        } else {
+            createEntry()
+        }
+        saved = true
+    }
+
+    private func createEntry() {
         guard let amountInt = Int(amount),
               let category = selectedCategory else { return }
 
-        var entry = existingEntry ?? EntryModel(
+        let newEntry = EntryModel(
             amount: amountInt,
             category: category,
             memo: memo,
@@ -71,13 +80,30 @@ class EntryFormViewModel: ObservableObject {
             date: date
         )
 
+        entryRepository.create(newEntry)
+    }
+
+    private func updateEntry() {
+        guard let amountInt = Int(amount),
+              let category = selectedCategory,
+              var entry = existingEntry else { return }
+
         entry.amount = amountInt
         entry.category = category
         entry.memo = memo
         entry.type = selectedType
         entry.date = date
 
-        entryRepository.save(entry)
-        saved = true
+        entryRepository.update(entry)
+    }
+    
+    func setEntry(_ entry: EntryModel) {
+        self.existingEntry = entry
+        self.amount = String(entry.amount)
+        self.selectedType = entry.type
+        self.selectedCategory = entry.category
+        self.date = entry.date
+        self.memo = entry.memo ?? ""
+        self.loadCategories()
     }
 }

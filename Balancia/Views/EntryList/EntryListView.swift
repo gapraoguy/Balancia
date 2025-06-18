@@ -2,7 +2,8 @@ import SwiftUI
 
 struct EntryListView: View {
     @EnvironmentObject var viewModel: EntryListViewModel
-    @State private var selectedEntry: EntryModel?
+    @EnvironmentObject var entryFormViewModel: EntryFormViewModel
+    @Binding var selectedTab: MainTabView.Tab
 
     var body: some View {
         NavigationStack {
@@ -27,17 +28,14 @@ struct EntryListView: View {
                         ForEach(viewModel.filteredEntries, id: \.id) { entry in
                             EntryRowView(entry: entry)
                                 .onTapGesture {
-                                    selectedEntry = entry
+                                    entryFormViewModel.setEntry(entry)
+                                    selectedTab = .entryForm
                                 }
                         }
                         .onDelete(perform: viewModel.deleteEntry)
                     }
                     .listStyle(.plain)
                 }
-            }
-            .navigationDestination(item: $selectedEntry) { entry in
-                EntryFormView()
-                    .environmentObject(EntryFormViewModel(entry: entry))
             }
         }
     }

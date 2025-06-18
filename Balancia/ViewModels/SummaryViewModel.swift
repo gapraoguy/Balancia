@@ -59,7 +59,6 @@ class SummaryViewModel: ObservableObject {
         categorySummaries = grouped.compactMap { (id, entries) in
             guard let category = entries.first?.category else { return nil }
             let total = entries.reduce(0) { $0 + $1.amount }
-            print(total)
             return CategorySummary(
                 categoryName: category.name,
                 amount: total,

@@ -5,8 +5,6 @@ struct CategorySeeder {
         categoryRepository: CategoryRepositoryProtocol = CategoryRepository(),
         colorRepository: CategoryColorRepositoryProtocol = CategoryColorRepository()
     ) {
-        print(categoryRepository.getAll().count)
-        print(colorRepository.getAll().count)
         if categoryRepository.getAll().count > 0 {
             return
         }
@@ -23,19 +21,14 @@ struct CategorySeeder {
             for hex in allColors {
                 let color = CategoryColorModel(hex: hex, isUsed: false)
                 colorRepository.save(color)
-                print(color)
             }
 
             for (index, name) in expenseCategories.enumerated() {
                 let colorHex = allColors[index]
-                print(index)
-                print(colorHex)
                 try colorRepository.reserveColor(colorHex)
                 
                 if let color = colorRepository.get(byHex: colorHex) {
-                    print(color)
                     let category = CategoryModel(name: name, type: .expense, color: color)
-                    print(category)
                     categoryRepository.create(category)
                 }
                 
@@ -43,13 +36,9 @@ struct CategorySeeder {
 
             for (index, name) in incomeCategories.enumerated() {
                 let colorHex = allColors[expenseCategories.count + index]
-                print(index)
-                print(colorHex)
                 try colorRepository.reserveColor(colorHex)
                 if let color = colorRepository.get(byHex: colorHex) {
-                    print(color)
                     let category = CategoryModel(name: name, type: .income, color: color)
-                    print(category)
                     categoryRepository.create(category)
                 }
             }
