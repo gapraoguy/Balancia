@@ -10,7 +10,7 @@ class EntryFormViewModel: ObservableObject {
     @Published var saved: Bool = false
     @Published var focusedField: FocusField? = nil
 
-    private var existingEntry: EntryModel?
+    @Published var existingEntry: EntryModel?
     private let entryRepository: EntryRepositoryProtocol
     private let categoryRepository: CategoryRepositoryProtocol
 
@@ -105,5 +105,17 @@ class EntryFormViewModel: ObservableObject {
         self.date = entry.date
         self.memo = entry.memo ?? ""
         self.loadCategories()
+    }
+    
+    func reset() {
+        existingEntry = nil
+        amount = ""
+        selectedType = .expense
+        selectedCategory = nil
+        date = Date()
+        memo = ""
+        saved = false
+        focusedField = nil
+        loadCategories()
     }
 }
