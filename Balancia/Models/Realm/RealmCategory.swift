@@ -10,20 +10,20 @@ class RealmCategory: Object, Identifiable {
 extension RealmCategory {
     func toModel() -> CategoryModel {
         CategoryModel(
-            id: self.id,
-            name: self.name,
-            type: self.type,
-            color: self.color?.toModel()
+            id: id,
+            name: name,
+            type: type,
+            color: color?.toModel()
         )
     }
 
     convenience init(from model: CategoryModel, in realm: Realm) {
         self.init()
-        self.id = model.id
-        self.name = model.name
-        self.type = model.type
+        id = model.id
+        name = model.name
+        type = model.type
         if let colorModel = model.color {
-            self.color = realm.object(ofType: RealmCategoryColor.self, forPrimaryKey: colorModel.hex)
+            color = realm.object(ofType: RealmCategoryColor.self, forPrimaryKey: colorModel.hex)
         }
     }
 }

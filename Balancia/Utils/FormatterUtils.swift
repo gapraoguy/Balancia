@@ -1,6 +1,6 @@
 import Foundation
 
-struct FormatterUtils {
+enum FormatterUtils {
     static func formattedAmount(_ value: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal

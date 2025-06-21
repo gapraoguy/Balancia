@@ -25,7 +25,7 @@ struct EntryFormView: View {
                     CategoryPickerSection(viewModel: viewModel)
                     AmountFieldSection(viewModel: viewModel, focusedField: $focusedField)
                     MemoFieldSection(viewModel: viewModel, focusedField: $focusedField)
-                    
+
                     Divider()
                     ButtonSection(viewModel: viewModel)
                 }
@@ -54,7 +54,7 @@ struct EntryFormView: View {
             }
         }
     }
-    
+
     private struct DateSection: View {
         @ObservedObject var viewModel: EntryFormViewModel
         @State private var showDatePicker = false
@@ -106,7 +106,7 @@ struct EntryFormView: View {
             return formatter.string(from: date)
         }
     }
-    
+
     private struct TypePickerSection: View {
         @ObservedObject var viewModel: EntryFormViewModel
         @Binding var selectedType: EntryType
@@ -124,10 +124,10 @@ struct EntryFormView: View {
             .padding(.horizontal)
         }
     }
-    
+
     private struct CategoryPickerSection: View {
         @ObservedObject var viewModel: EntryFormViewModel
-        
+
         var body: some View {
             Menu {
                 ForEach(viewModel.filteredCategories, id: \.id) { category in
@@ -157,11 +157,11 @@ struct EntryFormView: View {
             .padding(.horizontal)
         }
     }
-    
+
     private struct AmountFieldSection: View {
         @ObservedObject var viewModel: EntryFormViewModel
         @FocusState.Binding var focusedField: FocusField?
-        
+
         var body: some View {
             TextField("¥0", text: $viewModel.amount)
                 .keyboardType(.numberPad)
@@ -174,11 +174,11 @@ struct EntryFormView: View {
                 .padding(.horizontal)
         }
     }
-    
+
     private struct MemoFieldSection: View {
         @ObservedObject var viewModel: EntryFormViewModel
         @FocusState.Binding var focusedField: FocusField?
-        
+
         var body: some View {
             TextField("メモ", text: $viewModel.memo)
                 .focused($focusedField, equals: .memo)
@@ -190,10 +190,10 @@ struct EntryFormView: View {
                 .padding(.horizontal)
         }
     }
-    
+
     private struct ButtonSection: View {
         @ObservedObject var viewModel: EntryFormViewModel
-        
+
         var body: some View {
             VStack(spacing: 12) {
                 Button(action: {
@@ -213,8 +213,6 @@ struct EntryFormView: View {
                 .padding(.horizontal)
                 .disabled(viewModel.amount.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            
-            
         }
     }
 }

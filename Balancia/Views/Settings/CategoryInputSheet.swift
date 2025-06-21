@@ -16,7 +16,7 @@ struct CategoryInputSheet: View {
                 TitleSection()
                 TypePickerSection(selectedType: $viewModel.selectedType)
                 NameInputSection(categoryName: $viewModel.categoryName, focusedField: $focusedField)
-                ColorPickerSection(viewModel: viewModel) 
+                ColorPickerSection(viewModel: viewModel)
                 Divider()
                 ButtonSection(viewModel: viewModel)
             }
@@ -34,7 +34,7 @@ struct CategoryInputSheet: View {
             viewModel.focusedField = focusedField
         }
     }
-    
+
     private struct TitleSection: View {
         var body: some View {
             Text("カテゴリを追加")
@@ -42,7 +42,7 @@ struct CategoryInputSheet: View {
                 .bold()
         }
     }
-    
+
     private struct TypePickerSection: View {
         @Binding var selectedType: EntryType
 
@@ -56,7 +56,7 @@ struct CategoryInputSheet: View {
             .padding(.horizontal)
         }
     }
-    
+
     private struct NameInputSection: View {
         @Binding var categoryName: String
         @FocusState.Binding var focusedField: CategoryFocusField?
@@ -70,7 +70,7 @@ struct CategoryInputSheet: View {
                 .focused($focusedField, equals: .categoryName)
         }
     }
-    
+
     private struct ColorPickerSection: View {
         @ObservedObject var viewModel: CategoryManagementViewModel
 
@@ -116,7 +116,7 @@ struct CategoryInputSheet: View {
             }
         }
     }
-    
+
     private struct ButtonSection: View {
         @ObservedObject var viewModel: CategoryManagementViewModel
 
@@ -152,7 +152,6 @@ struct CategoryInputSheet: View {
                 }
                 .padding(.horizontal)
             }
-            
         }
     }
 }

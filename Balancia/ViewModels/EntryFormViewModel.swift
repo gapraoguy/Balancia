@@ -4,11 +4,11 @@ class EntryFormViewModel: ObservableObject {
     @Published var amount: String = ""
     @Published var selectedType: EntryType = .expense
     @Published var selectedCategory: CategoryModel?
-    @Published var date: Date = Date()
+    @Published var date: Date = .init()
     @Published var memo: String = ""
     @Published var filteredCategories: [CategoryModel] = []
     @Published var saved: Bool = false
-    @Published var focusedField: FocusField? = nil
+    @Published var focusedField: FocusField?
 
     @Published var existingEntry: EntryModel?
     private let entryRepository: EntryRepositoryProtocol
@@ -21,14 +21,14 @@ class EntryFormViewModel: ObservableObject {
     ) {
         self.entryRepository = entryRepository
         self.categoryRepository = categoryRepository
-        self.existingEntry = entry
+        existingEntry = entry
 
         if let entry = entry {
-            self.amount = String(entry.amount)
-            self.selectedType = entry.type
-            self.selectedCategory = entry.category
-            self.date = entry.date
-            self.memo = entry.memo ?? ""
+            amount = String(entry.amount)
+            selectedType = entry.type
+            selectedCategory = entry.category
+            date = entry.date
+            memo = entry.memo ?? ""
         }
 
         loadCategories()
@@ -36,7 +36,7 @@ class EntryFormViewModel: ObservableObject {
 
     func loadCategories() {
         let all = categoryRepository.get(by: selectedType).sorted { $0.name < $1.name }
-        self.filteredCategories = all
+        filteredCategories = all
 
         if let selected = selectedCategory {
             if let updated = filteredCategories.first(where: { $0.id == selected.id }) {
@@ -96,17 +96,17 @@ class EntryFormViewModel: ObservableObject {
 
         entryRepository.update(entry)
     }
-    
+
     func setEntry(_ entry: EntryModel) {
-        self.existingEntry = entry
-        self.amount = String(entry.amount)
-        self.selectedType = entry.type
-        self.selectedCategory = entry.category
-        self.date = entry.date
-        self.memo = entry.memo ?? ""
-        self.loadCategories()
+        existingEntry = entry
+        amount = String(entry.amount)
+        selectedType = entry.type
+        selectedCategory = entry.category
+        date = entry.date
+        memo = entry.memo ?? ""
+        loadCategories()
     }
-    
+
     func reset() {
         existingEntry = nil
         amount = ""

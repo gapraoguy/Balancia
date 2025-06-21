@@ -8,12 +8,12 @@ class RealmCategoryColor: Object, ObjectKeyIdentifiable {
 
 extension RealmCategoryColor {
     func toModel() -> CategoryColorModel {
-        CategoryColorModel(hex: self.hex, isUsed: self.isUsed)
+        CategoryColorModel(hex: hex, isUsed: isUsed)
     }
 
     convenience init(from model: CategoryColorModel) {
         self.init()
-        self.hex = model.hex
-        self.isUsed = model.isUsed
+        hex = model.hex
+        isUsed = model.isUsed
     }
 }

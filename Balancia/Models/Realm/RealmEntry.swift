@@ -1,5 +1,5 @@
-import RealmSwift
 import Foundation
+import RealmSwift
 
 class RealmEntry: Object, Identifiable {
     @Persisted(primaryKey: true) var id: ObjectId
@@ -14,26 +14,26 @@ class RealmEntry: Object, Identifiable {
 extension RealmEntry {
     func toModel() -> EntryModel {
         EntryModel(
-            id: self.id,
-            amount: self.amount,
-            category: self.category?.toModel(),
-            memo: self.memo,
-            tags: Array(self.tags),
-            type: self.type,
-            date: self.date
+            id: id,
+            amount: amount,
+            category: category?.toModel(),
+            memo: memo,
+            tags: Array(tags),
+            type: type,
+            date: date
         )
     }
 
     convenience init(from model: EntryModel, in realm: Realm) {
         self.init()
-        self.id = model.id
-        self.amount = model.amount
+        id = model.id
+        amount = model.amount
         if let categoryModel = model.category {
-            self.category = realm.object(ofType: RealmCategory.self, forPrimaryKey: categoryModel.id)
+            category = realm.object(ofType: RealmCategory.self, forPrimaryKey: categoryModel.id)
         }
-        self.memo = model.memo
-        self.tags.append(objectsIn: model.tags)
-        self.type = model.type
-        self.date = model.date
+        memo = model.memo
+        tags.append(objectsIn: model.tags)
+        type = model.type
+        date = model.date
     }
 }

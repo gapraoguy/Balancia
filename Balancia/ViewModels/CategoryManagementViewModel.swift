@@ -7,8 +7,8 @@ class CategoryManagementViewModel: ObservableObject {
     @Published var selectedType: EntryType = .expense
     @Published var showingCategoryDialog: Bool = false
     @Published var categoryName: String = ""
-    @Published var editingCategory: CategoryModel? = nil
-    @Published var focusedField: CategoryFocusField? = nil
+    @Published var editingCategory: CategoryModel?
+    @Published var focusedField: CategoryFocusField?
     @Published var categoryUpdated: Bool = false
     @Published var allColors: [CategoryColorModel] = []
     @Published var selectedColorHex: String = ""
@@ -28,12 +28,12 @@ class CategoryManagementViewModel: ObservableObject {
 
     func loadCategories() {
         let all = categoryRepository.getAll()
-        self.incomeCategories = all.filter { $0.type == .income }
-        self.expenseCategories = all.filter { $0.type == .expense }
+        incomeCategories = all.filter { $0.type == .income }
+        expenseCategories = all.filter { $0.type == .expense }
     }
 
     func loadColors() {
-        self.allColors = colorRepository.getAll()
+        allColors = colorRepository.getAll()
     }
 
     func prepareForNewCategory() {
@@ -98,7 +98,7 @@ class CategoryManagementViewModel: ObservableObject {
 
     func deleteCategory(at offsets: IndexSet, for type: EntryType) {
         let categories = (type == .income) ? incomeCategories : expenseCategories
-        offsets.forEach { index in
+        for index in offsets {
             let categoryToDelete = categories[index]
             if let hex = categoryToDelete.color?.hex {
                 colorRepository.releaseColor(hex)

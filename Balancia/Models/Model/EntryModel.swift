@@ -1,8 +1,8 @@
-import RealmSwift
 import Foundation
+import RealmSwift
 
 struct EntryModel: Identifiable, Hashable {
-    var id: ObjectId = ObjectId.generate()
+    var id: ObjectId = .generate()
     var amount: Int
     var category: CategoryModel?
     var memo: String?

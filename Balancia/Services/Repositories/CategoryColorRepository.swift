@@ -20,7 +20,7 @@ class CategoryColorRepository: CategoryColorRepositoryProtocol {
             .sorted(byKeyPath: "hex")
             .map { $0.toModel() }
     }
-    
+
     func get(byHex hex: String) -> CategoryColorModel? {
         realm.object(ofType: RealmCategoryColor.self, forPrimaryKey: hex)?.toModel()
     }
@@ -48,10 +48,10 @@ class CategoryColorRepository: CategoryColorRepositoryProtocol {
             color.isUsed = false
         }
     }
-    
+
     func save(_ color: CategoryColorModel) {
         guard get(byHex: color.hex) == nil else { return }
-        
+
         let realmColor = RealmCategoryColor()
         realmColor.hex = color.hex
         realmColor.isUsed = color.isUsed

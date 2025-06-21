@@ -1,6 +1,6 @@
 import Foundation
 
-struct CategorySeeder {
+enum CategorySeeder {
     static func seedIfNeeded(
         categoryRepository: CategoryRepositoryProtocol = CategoryRepository(),
         colorRepository: CategoryColorRepositoryProtocol = CategoryColorRepository()
@@ -26,12 +26,11 @@ struct CategorySeeder {
             for (index, name) in expenseCategories.enumerated() {
                 let colorHex = allColors[index]
                 try colorRepository.reserveColor(colorHex)
-                
+
                 if let color = colorRepository.get(byHex: colorHex) {
                     let category = CategoryModel(name: name, type: .expense, color: color)
                     categoryRepository.create(category)
                 }
-                
             }
 
             for (index, name) in incomeCategories.enumerated() {

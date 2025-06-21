@@ -11,7 +11,7 @@ extension Date {
     }
 
     func daysInMonth(using calendar: Calendar = .current) -> [Date] {
-        let start = self.startOfMonth()
+        let start = startOfMonth()
         let range = calendar.range(of: .day, in: .month, for: start)!
         return range.compactMap { day in
             calendar.date(byAdding: .day, value: day - 1, to: start)
@@ -51,7 +51,6 @@ struct CalendarView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // 曜日ヘッダー
             HStack {
                 ForEach(daysOfWeek, id: \.self) { day in
                     Text(day)
@@ -61,9 +60,8 @@ struct CalendarView: View {
                 }
             }
 
-            // カレンダーグリッド
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
-                ForEach(Array(days.enumerated()), id: \.offset) { index, date in
+                ForEach(Array(days.enumerated()), id: \.offset) { _, date in
                     if calendar.isDate(date, equalTo: Date.distantPast, toGranularity: .day) {
                         Color.clear.frame(height: 48)
                     } else {

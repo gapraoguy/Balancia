@@ -1,5 +1,5 @@
-import RealmSwift
 import Foundation
+import RealmSwift
 
 protocol CategoryRepositoryProtocol {
     func getAll() -> [CategoryModel]

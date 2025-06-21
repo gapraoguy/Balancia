@@ -9,7 +9,7 @@ struct CategorySummary: Identifiable {
 
 @MainActor
 class SummaryViewModel: ObservableObject {
-    @Published var selectedMonth: Date = Date()
+    @Published var selectedMonth: Date = .init()
     @Published var totalIncome: Int = 0
     @Published var totalExpense: Int = 0
     @Published var categorySummaries: [CategorySummary] = []
@@ -56,7 +56,7 @@ class SummaryViewModel: ObservableObject {
             $0.category?.id
         }
 
-        categorySummaries = grouped.compactMap { (id, entries) in
+        categorySummaries = grouped.compactMap { _, entries in
             guard let category = entries.first?.category else { return nil }
             let total = entries.reduce(0) { $0 + $1.amount }
             return CategorySummary(

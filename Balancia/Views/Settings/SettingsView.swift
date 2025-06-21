@@ -5,7 +5,7 @@ struct SettingsView: View {
     @EnvironmentObject var entryListViewModel: EntryListViewModel
     @EnvironmentObject var entryFormViewModel: EntryFormViewModel
     @StateObject private var categoryVM = CategoryManagementViewModel()
-    
+
     var body: some View {
         NavigationStack {
             List {

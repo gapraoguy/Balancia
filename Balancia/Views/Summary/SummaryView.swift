@@ -1,6 +1,5 @@
-import SwiftUI
 import Charts
-
+import SwiftUI
 
 struct SummaryView: View {
     @EnvironmentObject var listViewModel: EntryListViewModel
@@ -20,7 +19,7 @@ struct SummaryView: View {
                         viewModel.calculate(from: listViewModel.entries)
                     }
                 )
-                
+
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("収入合計")
@@ -52,15 +51,15 @@ struct SummaryView: View {
                             .font(.title3)
                             .foregroundColor(
                                 viewModel.netBalance > 0 ? .green :
-                                viewModel.netBalance < 0 ? .red : .gray
+                                    viewModel.netBalance < 0 ? .red : .gray
                             )
                     }
                 }
                 .padding(.horizontal)
-                
+
                 Divider()
                     .padding(.horizontal)
-                
+
                 Text("カテゴリ別支出")
                     .font(.headline)
                     .padding()
@@ -80,7 +79,7 @@ struct SummaryView: View {
                                 .font(.subheadline)
                         }
                         VStack(spacing: 6) {
-                            ForEach(0..<3) { _ in
+                            ForEach(0 ..< 3) { _ in
                                 HStack(spacing: 8) {
                                     Circle()
                                         .fill(Color.gray.opacity(0.2))
@@ -109,25 +108,24 @@ struct SummaryView: View {
                         .frame(height: 300)
                         .padding()
                         .rotationEffect(.degrees(0))
-                        
+
                         VStack(alignment: .leading, spacing: 6) {
-                           ForEach(viewModel.categorySummaries.sorted(by: { $0.amount > $1.amount })) { item in
-                               HStack(spacing: 8) {
-                                   Circle()
-                                       .fill(Color.hex(item.colorHex))
-                                       .frame(width: 12, height: 12)
-                                   Text(item.categoryName)
-                                       .font(.subheadline)
-                                   Spacer()
-                                   Text(FormatterUtils.formattedAmountWithSymbol(item.amount))
-                                       .font(.subheadline)
-                                       .foregroundColor(.red)
-                               }
-                           }
-                       }
-                       .padding(.horizontal)
+                            ForEach(viewModel.categorySummaries.sorted(by: { $0.amount > $1.amount })) { item in
+                                HStack(spacing: 8) {
+                                    Circle()
+                                        .fill(Color.hex(item.colorHex))
+                                        .frame(width: 12, height: 12)
+                                    Text(item.categoryName)
+                                        .font(.subheadline)
+                                    Spacer()
+                                    Text(FormatterUtils.formattedAmountWithSymbol(item.amount))
+                                        .font(.subheadline)
+                                        .foregroundColor(.red)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
                     }
-                    
                 }
 
                 Spacer()
@@ -138,4 +136,3 @@ struct SummaryView: View {
         }
     }
 }
-

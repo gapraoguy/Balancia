@@ -6,7 +6,7 @@ enum CategoryFocusField: Hashable {
 
 struct CategoryManagementView: View {
     @ObservedObject var viewModel: CategoryManagementViewModel
-    @State private var editingCategory: CategoryModel? = nil
+    @State private var editingCategory: CategoryModel?
 
     var body: some View {
         NavigationStack {

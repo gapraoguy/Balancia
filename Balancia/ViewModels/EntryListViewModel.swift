@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 class EntryListViewModel: ObservableObject {
     @Published var entries: [EntryModel] = []
-    @Published var selectedDate: Date = Date()
+    @Published var selectedDate: Date = .init()
 
     private let repository: EntryRepositoryProtocol
 
@@ -13,7 +13,7 @@ class EntryListViewModel: ObservableObject {
     }
 
     func loadEntries() {
-        self.entries = repository.getAll().sorted(by: { $0.date > $1.date })
+        entries = repository.getAll().sorted(by: { $0.date > $1.date })
     }
 
     func deleteEntry(at offsets: IndexSet) {

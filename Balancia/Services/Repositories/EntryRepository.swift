@@ -3,7 +3,7 @@ import RealmSwift
 
 class EntryRepository: EntryRepositoryProtocol {
     private let realm = try! Realm()
-    
+
     func create(_ entry: EntryModel) {
         try? realm.write {
             let realmEntry = RealmEntry(from: entry, in: realm)

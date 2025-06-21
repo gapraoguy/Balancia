@@ -3,7 +3,7 @@ import SwiftUI
 struct EntryListView: View {
     @EnvironmentObject var viewModel: EntryListViewModel
     @EnvironmentObject var entryFormViewModel: EntryFormViewModel
-    
+
     @State private var isShowingSheet = false
 
     var body: some View {
